@@ -1,0 +1,39 @@
+///Cacti Graph Merge Script
+
+
+php rrdsplice.php --oldrrd=/var/www/html/cacti/rra/ben-jnp2_traffic_in_6772.rrd --newrrd=/var/www/html/cacti/rra/ben-jnp2_traffic_in_650.rrd --finrrd=/var/www/html/cacti/rra/ben-jnp2_traffic_in_650.rrd
+
+
+new : ben-jnp2_traffic_in_647.rrd
+old : ben-jnp2_traffic_in_188.rrd
+
+cd /var/www/html/cacti/rra
+
+find / -name "rrdsplice.php" 2>/dev/null
+
+
+rsync -avz /var/lib/cacti/rra/rrdsplice.php root@Y:/var/www/html/cacti/rra/
+
+🔹 Explanation:
+-a → Archive mode (preserves permissions, timestamps, symbolic links).
+-v → Verbose mode (shows progress).
+-z → Compresses data for faster transfer.
+root@Y → SSH as root on Server Y.
+/var/www/html/cacti/rra/ → Destination folder on Server Y.
+
+
+🔹 If SSH Uses a Different Port (e.g., 2222)
+rsync -avz -e "ssh -p 2222" /var/lib/cacti/rra/rrdsplice.php root@Y:/var/www/html/cacti/rra/
+
+
+
+/usr/share/cacti/rra/ben-jnp2_traffic_in_6772.rrd
+
+/var/www/html/cacti/rra/ben-jnp2_traffic_in_650.rrd
+
+
+
+cd /var/test/
+
+
+rsync -avz /var/www/html/cacti/rra/rrdsplice.php root@server_ip:/var/test/

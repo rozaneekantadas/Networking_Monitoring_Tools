@@ -1,0 +1,45 @@
+For Cacti 114.130.56.81
+==========================================================
+wget https://github.com/Cacti/plugin_weathermap/archive/refs/tags/v1.3.tar.gz 
+tar -zxvf v1.3.tar.gz
+mv  plugin_weathermap-1.3 weathermap
+cd /usr/share/cacti/plugins
+chmod -R 777 weathermap/
+
+sudo chown -R www-data:www-data /usr/share/cacti/plugins/weathermap/
+
+ln -s /usr/share/cacti/plugins/weathermap/lib/ lib
+
+systemctl restart cactid
+
+$configdir = '/usr/share/cacti/plugins/weathermap/configs/';
+$outputdir = '/usr/share/cacti/plugins/weathermap/output/';
+
+
+
+weathermap version Weathermap 0.98a
+=====================================
+
+wget https://github.com/Cacti/plugin_weathermap/archive/refs/tags/v1.0.tar.gz
+tar -zxvf v1.1.tar.gz
+mv plugin_weathermap-1.1 weathermap
+cd /usr/share/cacti/plugins
+chmod -R 777 weathermap/
+
+chown -R apache:apache /usr/share/cacti/plugins/weathermap/
+
+
+systemctl restart httpd.service
+
+
+
+wget https://github.com/Cacti/plugin_weathermap/archive/refs/tags/v1.3.tar.gz 
+tar -zxvf v1.3.tar.gz
+mv  plugin_weathermap-1.3 weathermap
+mv weathermap/ /opt/cacti/plugins/
+cd /opt/cacti/plugins
+chmod -R 777 weathermap/
+sudo chown -R www-data:www-data /opt/cacti/plugins/weathermap/
+
+
+
