@@ -1,0 +1,41 @@
+sudo apt update sudo apt upgrade -y
+sudo apt install smokeping apache2 libapache2-mod-fcgid -y
+sudo a2enmod fcgid cgi
+sudo systemctl restart apache2
+smokeping --version
+sudo nano /etc/smokeping/config.d/General
+sudo nano /etc/smokeping/config.d/Targets
+
+sudo timedatectl set-timezone Asia/Dhaka
+timedatectl
+
+Localhost
+menu = Localhost
+title = Localhost
+host = 127.0.0.1
+
+sudo nano /etc/apache2/conf-available/smokeping.conf
+
+Alias /smokeping /usr/share/smokeping/htdocs
+Directory "/usr/share/smokeping/htdocs"
+    Options FollowSymLinks
+    AllowOverride None
+    Require all granted
+/Directory
+ScriptAlias /smokeping/smokeping.cgi /usr/share/smokeping/cgi-bin/smokeping.cgi
+Directory "/usr/share/smokeping/cgi-bin"
+    AllowOverride None
+    Require all granted
+/Directory
+
+
+<Directory "/usr/share/smokeping/cgi-bin">
+    AllowOverride None
+    Require all granted
+</Directory>
+
+
+sudo a2enconf smokeping
+sudo systemctl reload apache2
+sudo systemctl start smokeping
+sudo systemctl enable smokeping
