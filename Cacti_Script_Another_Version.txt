@@ -1,0 +1,170 @@
+How to Install Cacti Network Monitoring Tool on Ubuntu 24.04 | 22.04
+Cacti is a powerful network monitoring tool that allows you to collect and display data about your network’s performance. Using RRDTool, it stores and visualizes data in graphs, making it easier for administrators to track network usage, bandwidth, and other metrics over time. This article will guide you through the installation of Cacti on Ubuntu 24.04 and 22.04.
+
+Prerequisites
+Before you begin, ensure you have the following:
+
+An Ubuntu 24.04 or 22.04 server.
+A user account with sudo privileges.
+A LAMP (Linux, Apache, MySQL, PHP) stack installed on your server.
+Commands
+sudo apt update && sudo apt upgrade
+
+sudo apt install fping
+
+sudo apt install apache2
+
+sudo systemctl enable --now apache2
+
+sudo apt install php php-{mysql,curl,net-socket,gd,intl,pear,imap,memcache,pspell,tidy,xmlrpc,snmp,mbstring,gmp,json,xml,common,ldap}
+
+sudo apt install libapache2-mod-php
+
+sudo nano /etc/php/*/apache2/php.ini
+
+sudo nano /etc/php/*/cli/php.ini
+
+sudo apt install mariadb-server -y
+
+sudo systemctl enable --now mariadb
+
+sudo systemctl status mariadb
+
+sudo mysql -u root -p
+
+CREATE DATABASE cacti DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+GRANT ALL PRIVILEGES ON cacti.* TO 'cacti'@'localhost' IDENTIFIED BY 'cacti';
+
+GRANT SELECT ON mysql.time_zone_name TO cacti@localhost;
+
+ALTER DATABASE cacti CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+FLUSH PRIVILEGES;
+
+EXIT;
+
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+
+==============================================================================
+
+innodb_file_format=Barracuda
+innodb_large_prefix=1
+collation-server=utf8mb4_unicode_ci
+character-set-server=utf8mb4
+innodb_doublewrite=OFF
+max_heap_table_size=128M
+tmp_table_size=128M
+join_buffer_size=128M
+innodb_buffer_pool_size=1G
+innodb_flush_log_at_timeout=3
+innodb_read_io_threads=32
+innodb_write_io_threads=16
+innodb_io_capacity=5000
+innodb_io_capacity_max=10000
+innodb_buffer_pool_instances=9
+
+===========================================================================
+
+sudo mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+
+sudo apt install snmp snmpd rrdtool
+
+wget https://www.cacti.net/downloads/cacti-1.2.24.tar.gz
+
+tar -zxvf cacti-1.2.24.tar.gz
+
+sudo mv cacti-1.2.24 cacti
+
+sudo mv cacti /var/www/html
+
+sudo mysql -u root cacti < /var/www/html/cacti/cacti.sql
+
+cd /var/www/html/cacti/include
+
+cp config.php.dist config.php
+
+sudo nano config.php
+
+sudo chown -R www-data:www-data /var/www/html/cacti
+
+sudo nano /etc/systemd/system/cactid.service
+
+==========================================================================
+
+[Unit]
+Description=Cacti Daemon Main Poller Service
+After=network.target
+
+[Service]
+Type=forking
+User=www-data
+Group=www-data
+EnvironmentFil
+
+e=/etc/default/cactid
+ExecStart=/var/www/html/cacti/cactid.php
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+
+=========================================================================
+
+sudo touch /etc/default/cactid
+
+sudo systemctl daemon-reload
+
+sudo systemctl enable cactid
+
+sudo systemctl restart cactid
+
+sudo systemctl status cactid
+
+sudo systemctl restart apache2 mariadb
+
+http://your-server-IP-address/cacti/
+
+
+
+
+Let’s Add the WeatherMap Plugin to Our Cacti Server
+---------------------------------------------------
+git clone https://github.com/Cacti/plugin_weathermap
+ls
+mv plugin_weathermap weathermap
+cp weathermap /var/www/html/cacti/plugins/
+cd /var/www/html/cacti/plugins/
+
+cd weathermap/
+cp config.php.dist config.php
+
+chmod -R 777 weathermap/
+systemctl restart cactid
+
+
+
+ln -s /var/www/html/cacti/plugins/weathermap/lib/ lib
+
+
+
+cp -r weathermap cacti-1.2.28/plugins/
+
+cp weathermap /opt/cacti/plugins/
+cd /opt/cacti/plugins/
+
+sudo chown -R www-data:www-data /var/www/html/cacti/plugins/weathermap/
+
+Un0c@mAng03!2#
+
+
+cp weathermap /opt/cacti/include/plugins/
+
+
+
+wget https://github.com/Cacti/plugin_weathermap/archive/refs/tags/v1.3.tar.gz 
+
+tar -zxvf v1.3.tar.gz
+
+mv  plugin_weathermap-1.3 weathermap

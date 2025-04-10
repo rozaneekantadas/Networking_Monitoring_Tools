@@ -1,0 +1,144 @@
+I. Download and Install VirtualBox
+	https://www.virtualbox.org/wiki/Downloads
+
+II.Download and Install Ubuntu Server
+	https://ubuntu.com/download/server
+
+III. Install Cacti on Ubuntu Server
+
+Change Server TimeZone
+
+	timedatectl
+	sudo timedatectl set-timezone Asia/Dhaka
+
+1. Prerequisites
+	sudo apt update
+	sudp apt upgrade -y
+2. Install Apache & PHP
+	sudo apt install -y apache2 php-mysql libapache2-mod-php
+3. Install PHP Extensions
+	sudo apt install -y php-xml php-ldap php-mbstring php-gd php-gmp
+4. Install MariaDB
+	sudo apt install -y mariadb-server mariadb-client
+5. Install SNMP
+	sudo apt install -y snmp php-snmp rrdtool librrds-perl
+6. Database Tuning
+	sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+
+Add/Update
+
+innodb_file_format=Barracuda
+innodb_large_prefix=1
+collation-server=utf8mb4_unicode_ci
+character-set-server=utf8mb4
+innodb_doublewrite=OFF
+max_heap_table_size=128M
+tmp_table_size=128M
+join_buffer_size=128M
+innodb_buffer_pool_size=1G
+innodb_flush_log_at_timeout=3
+innodb_read_io_threads=32
+innodb_write_io_threads=16
+innodb_io_capacity=5000
+innodb_io_capacity_max=10000
+innodb_buffer_pool_instances=9
+
+sudo systemctl restart mariadb
+
+7. PHP Configuration
+	sudo nano /etc/php/8.3/apache2/php.ini
+
+	date.timezone = Asia/Dhaka
+	memory_limit = 512M
+	max_execution_time = 60
+
+	sudo nano /etc/php/8.3/cli/php.ini
+
+	date.timezone = Asia/Dhaka
+	memory_limit = 512M
+	max_execution_time = 60
+
+8. Create Database
+	sudo mysql -u root -p
+
+	create database cacti;
+	GRANT ALL ON cacti.* TO cacti@localhost IDENTIFIED BY 'cacti';
+	flush privileges;
+	exit
+	
+	sudo mysql -u root -p mysql < /usr/share/mysql/mysql_test_data_timezone.sql
+	
+	sudo mysql -u root -p
+	GRANT SELECT ON mysql.time_zone_name TO cacti@localhost;
+	flush privileges;
+	exit
+
+9. Download & Configure Cacti
+	wget https://www.cacti.net/downloads/cacti-latest.tar.gz
+	tar -zxvf cacti-latest.tar.gz
+	sudo mv cacti-1* /opt/cacti
+	sudo mysql -u root -p cacti < /opt/cacti/cacti.sql
+	sudo nano /opt/cacti/include/config.php.dist
+	sudo mv /opt/cacti/include/config.php.dist /opt/cacti/include/config.php
+
+/* make sure these values reflect your actual database/host/user/password */
+$database_type = "mysql";
+$database_default = "cacti";
+$database_hostname = "localhost";
+$database_username = "cacti";
+$database_password = "cacti";
+$database_port = "3306";
+$database_ssl = false;
+
+Create a crontab file to schedule the polling job.
+	sudo nano /etc/cron.d/cacti
+Add the following scheduler entry in the crontab so that Cacti can poll every five minutes
+	*/5 * * * * www-data php /opt/cacti/poller.php > /dev/null 2>&1
+Create a new site for the Cacti tool
+	sudo nano /etc/apache2/sites-available/cacti.conf
+Use the following configuration
+
+Alias /cacti /opt/cacti
+
+  <Directory /opt/cacti>
+      Options +FollowSymLinks
+      AllowOverride None
+      <IfVersion >= 2.3>
+      Require all granted
+      </IfVersion>
+      <IfVersion < 2.3>
+      Order Allow,Deny
+      Allow from all
+      </IfVersion>
+
+   AddType application/x-httpd-php .php
+
+<IfModule mod_php.c>
+      php_flag magic_quotes_gpc Off
+      php_flag short_open_tag On
+      php_flag register_globals Off
+      php_flag register_argc_argv On
+      php_flag track_vars On
+      # this setting is necessary for some locales
+      php_value mbstring.func_overload 0
+      php_value include_path .
+ </IfModule>
+
+  DirectoryIndex index.php
+</Directory>
+
+Enable the created site.
+	sudo a2ensite cacti
+Restart Apache services.
+	sudo systemctl restart apache2
+Create a log file for Cacti and allow the Apache user (www-data) to write a data on to Cacti directory.
+	sudo touch /opt/cacti/log/cacti.log
+	sudo chown -R www-data:www-data /opt/cacti/
+
+10. Visit the below URL to begin the installation of Cacti
+	http://your_ip_address/cacti
+
+	Username: admin
+	Password: admin
+
+
