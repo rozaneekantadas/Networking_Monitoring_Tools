@@ -143,10 +143,7 @@ cp config.php.dist config.php
 chmod -R 777 weathermap/
 systemctl restart cactid
 
-
-
 ln -s /var/www/html/cacti/plugins/weathermap/lib/ lib
-
 
 
 cp -r weathermap cacti-1.2.28/plugins/
@@ -156,11 +153,8 @@ cd /opt/cacti/plugins/
 
 sudo chown -R www-data:www-data /var/www/html/cacti/plugins/weathermap/
 
-Un0c@mAng03!2#
-
 
 cp weathermap /opt/cacti/include/plugins/
-
 
 
 wget https://github.com/Cacti/plugin_weathermap/archive/refs/tags/v1.3.tar.gz 
