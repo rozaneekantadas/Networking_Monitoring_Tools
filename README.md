@@ -1,11 +1,11 @@
-# Zabbix 6.4 Installation on Ubuntu Server 22.04.1
+# Zabbix 7.0 Installation on Ubuntu Server 24.04.2 LTS
 
-This guide walks you through installing **Zabbix 6.4** on **Ubuntu Server 22.04.1**.
+This guide walks you through installing **Zabbix 7.0** on **Ubuntu Server 24.04.2 LTS**.
 It includes setting up Apache, PHP, MySQL, and Zabbix server and frontend.
 
 ## Prerequisites
 
-* Ubuntu Server 22.04.1 installed
+* Ubuntu Server 24.04.2 LTS installed
 * SSH access enabled
 
 ---
@@ -132,7 +132,6 @@ Proceed with the web-based configuration.
 ## ✅ Notes
 
 * This guide uses the Zabbix 7.0 repo (latest at time of writing).
-* Adjust the repository URL if installing Zabbix 6.4 specifically.
 * Always ensure system packages are up-to-date.
 
 ---
