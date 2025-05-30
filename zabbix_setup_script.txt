@@ -15,6 +15,10 @@ Aside from that, lets jump straight into installing Zabbix 6.4 PRE-RELEASE on to
 
 Run the following cmds:
 
+sudo apt install apache2
+sudo apt install php php-{cgi,common,mbstring,net-socket,gd,xml-util,mysql,bcmath,imap,snmp}
+sudo apt install libapache2-mod-php
+
 sudo -s
 
 wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest+ubuntu24.04_all.deb
@@ -37,7 +41,7 @@ mysql
 
 create database zabbix character set utf8mb4 collate utf8mb4_bin;
 
-create user zabbix@localhost identified by 'password';
+create user zabbix@localhost identified by 'zabbix';
 
 grant all privileges on zabbix.* to zabbix@localhost;
 
@@ -45,9 +49,12 @@ set global log_bin_trust_function_creators = 1;
 
 quit;
 
+
 6. On Zabbix server host import initial schema and data. You will be prompted to enter your newly created password.
 
-sudo zcat /usr/share/zabbix-sql-scripts/mysql/server.sql.gz | mysql --default-character-set=utf8mb4 -uzabbix -p zabbix
+sudo zcat /usr/share/zabbix-sql-scripts/mysql/server.sql.gz | mysql --default-character-set=utf8mb4 -uzabbix -p Zabbix
+
+It will take some times, wait until the command executed.
 
 7. Disable log_bin_trust_function_creators option after importing database schema.
 
@@ -61,7 +68,7 @@ quit;
 
 Edit file /etc/zabbix/zabbix_server.conf and set the DB password with ->
 
-sudo vim /etc/zabbix/zabbix_server.conf
+sudo nano /etc/zabbix/zabbix_server.conf
 
 9. Start Zabbix server and agent processes
 
@@ -74,48 +81,6 @@ systemctl enable zabbix-server zabbix-agent apache2
 The default URL for Zabbix UI when using Apache web server is http://host/zabbix
 
 
+database port: 3306
 
-https://git.zabbix.com/projects/ZBX/repos/zabbix/browse/templates/media/telegram
-
-1. Register bot: send "/newbot" to @BotFather and follow instructions
-2. Copy and paste the obtained token into the "Token" field above
-3. If you want to send personal notifications, you need to get chat id of the user you want to send messages to:
-    3.1. Send "/getid" to "@myidbot" in Telegram messenger
-    3.2. Copy returned chat id and save it in the "Telegram Webhook" media for the user
-    3.3. Ask the user to send "/start" to your bot (Telegram bot won't send anything to the user without it)
-4. If you want to send group notifications, you need to get group id of the group you want to send messages to:
-    4.1. Add "@myidbot" to your group
-    4.2. Send "/getgroupid@myidbot" in your group
-    4.3. Copy returned group id save it in the "Telegram Webhook" media for the user you created for  group notifications
-    4.4. Send "/start@your_bot_name_here" in your group (Telegram bot won't send anything to the group without it)
-	
-
-Problem Message Template
-================================================
-Subject: ===Host: {HOST.NAME}====
-
-Host IP: {HOST.IP}
-
-Problem: {EVENT.NAME}
-
-Problem started at {EVENT.TIME} on {EVENT.DATE}
-
-{TRIGGER.URL}
-================================================
-
-Problem Recovery Template
-==============================================================
-Subject: ===Host: {HOST.NAME}====
-
-Host IP: {HOST.IP}
-
-Problem: {EVENT.NAME}
-
-Resolved in {EVENT.DURATION}: 
-
-Resolved  at {EVENT.RECOVERY.TIME} on {EVENT.RECOVERY.DATE}
-
-
-{TRIGGER.URL}
-==============================================================
 
