@@ -10,6 +10,14 @@ A LAMP (Linux, Apache, MySQL, PHP) stack installed on your server.
 Commands
 sudo apt update && sudo apt upgrade
 
+# Change Server TimeZone
+
+timedatectl
+
+sudo timedatectl set-timezone Asia/Dhaka
+
+#Install Prerequisites
+
 sudo apt install fping
 
 sudo apt install apache2
@@ -22,7 +30,17 @@ sudo apt install libapache2-mod-php
 
 sudo nano /etc/php/*/apache2/php.ini
 
+Change value
+date.timezone = Asia/Dhaka
+memory_limit = 512M
+max_execution_time = 60
+
 sudo nano /etc/php/*/cli/php.ini
+
+Change value
+date.timezone = Asia/Dhaka
+memory_limit = 512M
+max_execution_time = 60
 
 sudo apt install mariadb-server -y
 
@@ -70,11 +88,11 @@ sudo mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
 
 sudo apt install snmp snmpd rrdtool
 
-wget https://www.cacti.net/downloads/cacti-1.2.24.tar.gz
+wget https://www.cacti.net/downloads/cacti-latest.tar.gz
 
-tar -zxvf cacti-1.2.24.tar.gz
+tar -zxvf cacti-1.2.30.tar.gz
 
-sudo mv cacti-1.2.24 cacti
+sudo mv cacti-1.2.30 cacti
 
 sudo mv cacti /var/www/html
 
@@ -85,6 +103,15 @@ cd /var/www/html/cacti/include
 cp config.php.dist config.php
 
 sudo nano config.php
+
+/* make sure these values reflect your actual database/host/user/password */
+$database_type = "mysql";
+$database_default = "cacti";
+$database_hostname = "localhost";
+$database_username = "cacti";
+$database_password = "cacti";
+$database_port = "3306";
+$database_ssl = false;
 
 sudo chown -R www-data:www-data /var/www/html/cacti
 
@@ -128,37 +155,24 @@ http://your-server-IP-address/cacti/
 
 
 
-
 Let’s Add the WeatherMap Plugin to Our Cacti Server
 ---------------------------------------------------
-git clone https://github.com/Cacti/plugin_weathermap
-ls
-mv plugin_weathermap weathermap
-cp weathermap /var/www/html/cacti/plugins/
+wget https://github.com/Cacti/plugin_weathermap/archive/refs/tags/v1.3.1.zip
+
+Install unzip repository using the following command:
+apt install unzip
+
+Then, unzip the downloaded weathermap plugin using the following command:
+unzip v1.3.1.zip
+
+mv plugin_weathermap-1.3.1 weathermap
+
+mv weathermap /var/www/html/cacti/plugins/
 cd /var/www/html/cacti/plugins/
 
-cd weathermap/
-cp config.php.dist config.php
+Provide apache user the permission to the weathermap directory:
+chown www-data:www-data -R /var/www/html/cacti/plugins/weathermap
 
-chmod -R 777 weathermap/
 systemctl restart cactid
 
-ln -s /var/www/html/cacti/plugins/weathermap/lib/ lib
-
-
-cp -r weathermap cacti-1.2.28/plugins/
-
-cp weathermap /opt/cacti/plugins/
-cd /opt/cacti/plugins/
-
-sudo chown -R www-data:www-data /var/www/html/cacti/plugins/weathermap/
-
-
-cp weathermap /opt/cacti/include/plugins/
-
-
-wget https://github.com/Cacti/plugin_weathermap/archive/refs/tags/v1.3.tar.gz 
-
-tar -zxvf v1.3.tar.gz
-
-mv  plugin_weathermap-1.3 weathermap
+Install and Activate the Weathermap plugin from Web browser.
